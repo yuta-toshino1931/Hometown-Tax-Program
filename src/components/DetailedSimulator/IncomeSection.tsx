@@ -1,4 +1,5 @@
 import type { SimulatorInput } from '../../types';
+import { handleNumericKeyDown, handleNumericPaste, parseNumericValue } from '../../utils/numericInput';
 
 interface Props {
   input: SimulatorInput;
@@ -16,9 +17,12 @@ export default function IncomeSection({ input, onChange }: Props) {
         </label>
         <div className="relative">
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             value={input.salaryIncome || ''}
-            onChange={(e) => onChange({ salaryIncome: Number(e.target.value) || 0 })}
+            onChange={(e) => onChange({ salaryIncome: parseNumericValue(e) })}
+            onKeyDown={handleNumericKeyDown}
+            onPaste={handleNumericPaste}
             placeholder="5,000,000"
             className="w-full rounded-lg border border-slate-300 px-4 py-2.5 pr-10 text-right text-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
           />
@@ -34,9 +38,12 @@ export default function IncomeSection({ input, onChange }: Props) {
         </label>
         <div className="relative">
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             value={input.otherIncome || ''}
-            onChange={(e) => onChange({ otherIncome: Number(e.target.value) || 0 })}
+            onChange={(e) => onChange({ otherIncome: parseNumericValue(e) })}
+            onKeyDown={handleNumericKeyDown}
+            onPaste={handleNumericPaste}
             placeholder="0"
             className="w-full rounded-lg border border-slate-300 px-4 py-2.5 pr-10 text-right text-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
           />
@@ -54,9 +61,12 @@ export default function IncomeSection({ input, onChange }: Props) {
         </label>
         <div className="relative">
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             value={input.socialInsurance || ''}
-            onChange={(e) => onChange({ socialInsurance: Number(e.target.value) || 0 })}
+            onChange={(e) => onChange({ socialInsurance: parseNumericValue(e) })}
+            onKeyDown={handleNumericKeyDown}
+            onPaste={handleNumericPaste}
             placeholder={`${Math.floor(input.salaryIncome * 0.15).toLocaleString()}（自動推定）`}
             className="w-full rounded-lg border border-slate-300 px-4 py-2.5 pr-10 text-right text-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
           />

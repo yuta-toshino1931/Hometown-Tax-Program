@@ -1,4 +1,5 @@
 import type { SimulatorInput } from '../../types';
+import { handleNumericKeyDown, handleNumericPaste, parseNumericValue } from '../../utils/numericInput';
 
 interface Props {
   input: SimulatorInput;
@@ -26,9 +27,12 @@ function AmountInput({
       </label>
       <div className="relative">
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
           value={value || ''}
-          onChange={(e) => onChange(Number(e.target.value) || 0)}
+          onChange={(e) => onChange(parseNumericValue(e))}
+          onKeyDown={handleNumericKeyDown}
+          onPaste={handleNumericPaste}
           placeholder={placeholder}
           className="w-full rounded-lg border border-slate-300 px-4 py-2 pr-10 text-right focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
         />
