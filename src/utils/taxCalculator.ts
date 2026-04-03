@@ -90,13 +90,6 @@ function getTaxRateLabel(taxableIncome: number): string {
   return '4,000万超 → 45%';
 }
 
-// 配偶者の給与収入から合計所得を算出
-function calcSpouseIncome(spouseSalary: number): number {
-  if (spouseSalary <= 0) return 0;
-  const deduction = calcSalaryDeduction(spouseSalary);
-  return Math.max(0, spouseSalary - deduction);
-}
-
 // 配偶者控除の適用判定
 function isSpouseDeductionApplicable(spouseSalary: number): boolean {
   return spouseSalary <= SPOUSE_SALARY_LIMIT;
