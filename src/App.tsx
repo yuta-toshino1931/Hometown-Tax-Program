@@ -42,7 +42,7 @@ export default function App() {
               <h2 className="text-lg font-bold text-slate-800 mb-4">
                 シミュレーション結果
               </h2>
-              <ResultDisplay result={result} />
+              <ResultDisplay input={input} result={result} />
             </div>
           </div>
         </div>
