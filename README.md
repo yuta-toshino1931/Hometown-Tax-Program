@@ -1,73 +1,109 @@
-# React + TypeScript + Vite
+# ふるさと納税 控除上限額シミュレーター
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+令和8年度（令和7年分所得）の税制改正に対応した、ふるさと納税の控除上限額（自己負担2,000円の範囲）を計算するWebアプリケーションです。
 
-Currently, two official plugins are available:
+## 概要
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+給与収入や各種所得控除の情報を入力すると、ふるさと納税で自己負担が2,000円に収まる控除上限額をリアルタイムに算出します。所得税と住民税の所得控除額を個別に計算し、調整控除・人的控除差調整額まで考慮した高精度なシミュレーションを行います。
 
-## React Compiler
+## 主な機能
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **控除上限額のリアルタイム計算** — 入力値を変更するたびに即座に結果が反映されます
+- **詳細な計算過程の表示** — 給与所得控除から最終的な上限額の算出まで、各ステップの計算式・代入値・結果を確認できます
+- **控除3段階の内訳表示** — 所得税からの還付、住民税基本分、住民税特例分の内訳を表示します
+- **PDF出力** — シミュレーション結果と計算過程をPDFとしてダウンロードできます
 
-## Expanding the ESLint configuration
+## 対応している入力項目
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| カテゴリ | 入力項目 |
+|---------|---------|
+| 収入情報 | 給与収入、給与以外の所得 |
+| 社会保険料 | 社会保険料（未入力時は給与収入の15%で推定） |
+| 配偶者情報 | 配偶者の有無・年齢区分・給与収入 |
+| 扶養親族 | 一般（16〜18歳）・特定（19〜22歳）・老人（非同居）・同居老親等 |
+| 障害者控除 | 普通障害者・特別障害者・同居特別障害者 |
+| ひとり親・寡婦控除 | 寡婦・ひとり親（母）・ひとり親（父） |
+| 勤労学生控除 | 勤労学生の有無 |
+| 生命保険料控除 | 新制度（一般・介護医療・個人年金）、旧制度（一般・個人年金） |
+| 地震保険料控除 | 地震保険料 |
+| 医療費控除 | 医療費控除額 |
+| 小規模企業共済等 | iDeCo等の掛金 |
+| 住宅ローン控除 | 住宅ローン控除額 |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 対応税制
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- 令和7年度税制改正に対応
+  - 所得税の基礎控除引き上げ（所得階層別に最大95万円）
+  - 給与所得控除の最低保障額引き上げ（55万円→65万円）
+  - 住民税の基礎控除は43万円据え置き
+- 復興特別所得税（2.1%加算、令和19年分まで）
+- 所得税と住民税の所得控除額差異を個別管理
+- 調整控除・人的控除差調整額の正確な計算
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 技術スタック
+
+| 技術 | 用途 |
+|-----|------|
+| [React](https://react.dev/) 19 | UIライブラリ |
+| [TypeScript](https://www.typescriptlang.org/) 5.9 | 型安全な開発言語 |
+| [Vite](https://vite.dev/) 8 | ビルドツール・開発サーバー |
+| [Tailwind CSS](https://tailwindcss.com/) 4 | ユーティリティファーストCSSフレームワーク |
+| [jsPDF](https://github.com/parallax/jsPDF) + [html2canvas](https://html2canvas.hertzen.com/) | PDF出力 |
+| [ESLint](https://eslint.org/) | 静的解析 |
+| [GitHub Actions](https://github.com/features/actions) | CI/CD（GitHub Pagesへの自動デプロイ） |
+
+## プロジェクト構成
+
+```
+src/
+├── App.tsx                         # アプリケーションのルートコンポーネント
+├── main.tsx                        # エントリーポイント
+├── types/
+│   └── index.ts                    # 型定義（SimulatorInput, CalculationResult等）
+├── constants/
+│   └── tax.ts                      # 税率表・控除額等の定数
+├── utils/
+│   ├── taxCalculator.ts            # 控除上限額の計算ロジック
+│   ├── pdfExport.ts                # PDF出力処理
+│   ├── pdfTemplate.ts              # PDF用HTMLテンプレート
+│   └── numericInput.ts             # 数値入力のユーティリティ
+└── components/
+    ├── Header.tsx                   # ヘッダー
+    ├── ResultDisplay.tsx            # シミュレーション結果表示
+    ├── CalculationBreakdown.tsx     # 計算過程の詳細表示
+    └── DetailedSimulator/
+        ├── index.tsx                # シミュレーター入力フォーム
+        ├── IncomeSection.tsx         # 収入情報セクション
+        ├── FamilySection.tsx         # 家族情報セクション
+        ├── InsuranceSection.tsx      # 保険料セクション
+        └── DeductionSection.tsx      # 控除セクション
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 開発
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# 依存関係のインストール
+npm install
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 開発サーバーの起動
+npm run dev
+
+# プロダクションビルド
+npm run build
+
+# ビルド結果のプレビュー
+npm run preview
+
+# Lint
+npm run lint
 ```
+
+## デプロイ
+
+`main` ブランチへのpushで GitHub Actions が自動的にビルド・デプロイを実行し、GitHub Pages で公開されます。
+
+## 注意事項
+
+- 本シミュレーターの計算結果はあくまで目安です
+- 実際の控除上限額は個人の状況により異なります
+- 正確な金額はお住まいの市区町村にお問い合わせください
